@@ -19,7 +19,9 @@
     <div class="input-group mb-3">
         <form>
             <input type="text" class="form-control" id="pname" placeholder="Enter name" aria-label="Enter name" aria-describedby="button-addon2">
-            <button class="btn btn-outline-secondary" type="button" id="button-addon2">Add</button>
+            <button class="btn btn-outline-secondary" type="button" id="button-addon2">Add Player</button>
+                      <button id="finBtn">Finish</button>
+
 
             <ul class="players">
                 <li></li>
@@ -28,95 +30,157 @@
     </div>
     <br>
     <div>
-        <button id="startBtn">Press to Start</button>
+        <button id="startBtn" onclick="myFunction()">Press to Start</button>
     </div>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Team 1</th>
+                <th scope="col">Team 2</th>
+                <th scope="col">Team 3</th>
+                <th scope="col">Team 4</th>
+                <th scope="col">Selected Team</th>
+            </tr>
+        </thead>
+        <tbody id="user-board">
+        
+        </tbody>
+    </table>
+    
 
     <script>
 
-        let players = [];
+    let players = [];
 
-        let playerNames = JSON.parse(localStorage.getItem("PlayerList")) || [];
+    let playerNames = JSON.parse(localStorage.getItem("PlayerList")) || [];
 
 
-        let teams = ['Barrow', 'Bradford', 'Bristol Rovers', 'Carlisle', 'Colchester', 'Crawley Town', 'Exeter City',
-        'Forest Green Rovers','Harrogate Town', 'Hartlepool', 'Leyton Orient', 'Mansfield Town', 'Newport', 'Northampton', 'Oldham', 'Port Vale',
-        'Rochdale', 'Salford City', 'Scunthorpe', 'Stevenage', 'Sutton United', 'Swindon', 'Tranmere Rovers', 'Walsall'];
+    let teams = ['Barrow', 'Bradford', 'Bristol Rovers', 'Carlisle', 'Colchester', 'Crawley Town', 'Exeter City',
+'Forest Green Rovers','Harrogate Town', 'Hartlepool', 'Leyton Orient', 'Mansfield Town', 'Newport', 'Northampton', 'Oldham', 'Port Vale',
+'Rochdale', 'Salford City', 'Scunthorpe', 'Stevenage', 'Sutton United', 'Swindon', 'Tranmere Rovers', 'Walsall'];
 
-        let startButton = document.querySelector("#startBtn");
+let startButton = document.querySelector("#startBtn");
 
-        const addName = (ev) => {
-            ev.preventDefault();
+const addName = (ev) => {
+    ev.preventDefault();
 
-            let player = {
-                name: document.getElementById("pname").value
-            }
-            
-            players.push(player);
-            document.querySelector('form').reset();
+    let player = {
+        name: document.getElementById("pname").value
+    }
+    
+    players.push(player);
+    document.querySelector('form').reset();
 
-            localStorage.setItem('PlayerList', JSON.stringify(players));
+    localStorage.setItem('PlayerList', JSON.stringify(players));
 
-            let showPlayer = document.querySelector(".players");
-            let playerNames = JSON.parse(localStorage.getItem("PlayerList")) || [];
-            
+    let showPlayer = document.querySelector(".players");
+    let playerNames = JSON.parse(localStorage.getItem("PlayerList")) || [];
+    
 
-            showPlayer.innerHTML = playerNames.map(PlayerList => { 
-                return `
-                        <li>${PlayerList.name}</li>
-                        `
-                })
-            
+    showPlayer.innerHTML = playerNames.map(PlayerList => { 
+        return `
+                <li>${PlayerList.name}</li>
+                `
+        })
+        .join("");
+}
+
+document.addEventListener("DOMContentLoaded", ()=>{
+    document.getElementById("button-addon2").addEventListener("click", addName)
+})
+
+function playerRandomise(plist) {
+    return [...plist].sort(() => Math.random() > 0.5 ? 1 : -1)
+}
+
+function teamRandomise(tlist) {
+    return [...tlist].sort(() => Math.random() > 0.5 ? 1 : -1).slice(0, 4)
+}
+
+function myFunction() {
+  var table = document.querySelector("#user-board");
+  
+  let team = teamRandomise(teams);
+  
+  let team1 = table.querySelector(".team1");
+  let team2 = table.querySelector(".team2");
+  let team3 = table.querySelector(".team3");
+  let team4 = table.querySelector(".team4");
+  
+  team1.innerHTML = `${team[0]}`;
+  team2.innerHTML = `${team[1]}`;
+  team3.innerHTML = `${team[2]}`;
+  team4.innerHTML = `${team[3]}`;
+  
+ }
+
+ function arrayRemove(arr, value) { 
+    
+    return arr.filter(function(ele){ 
+        return ele != value; 
+    });
+}
+ 
+ function teamSelection(e) {
+    // clicked team goes into selected team area
+    const target = e.currentTarget;
+    console.log(target)
+    var table = document.querySelector("#user-board");
+   
+    let teamSelected = table.querySelector(".selectedTeam");
+
+    teamSelected.innerHTML = target.innerHTML;
+    
+   // this team is removed from teams array
+    const removeItem = (arr, item) => {
+        const index = teams.findIndex((element) => element === item)
+        if (index !== -1){
+            teams.splice(index, 1)
+            return teams
         }
-        document.addEventListener('DOMContentLoaded', ()=>{
-            document.getElementById('button-addon2').addEventListener('click', addName);
-        });
-
-        function playerRandomise(plist) {
-            return [...plist].sort(() => Math.random() > 0.5 ? 1 : -1)
-
-            
-        }
-
-        // document.startButton.addEventListener('click', playerRandomise(PlayerList));
-
-        // console.log(playerRandomise(playerNames));
+    }
+    removeItem(teams, target.innerHTML);
+    console.log(teams)
+   
+   // row moves to next sibling with 4 fresh options now available
+   
+   
+ }
 
 
-        
+function popTable() {
+    let tablePlayer = document.getElementById("user-board"); 
+    let playerNames = JSON.parse(localStorage.getItem("PlayerList")) || [];    
+    
+    let tplayers = playerRandomise(playerNames);
 
-        function teamRandomise(tlist) {
-            return [...tlist].sort(() => Math.random() > 0.5 ? 1 : -1).slice(0, 3)
+    localStorage.setItem('TableList', JSON.stringify(tplayers));
 
-        }
+    let showPlayer = document.querySelector(".players");
+    let tPlayerNames = JSON.parse(localStorage.getItem("TableList")) || [];
 
-        // console.log(teamRandomise(teams));
-        // console.log(teamRandomise(teams));
-        // console.log(teamRandomise(teams));
-        // console.log(teamRandomise(teams));
-        // console.log(teamRandomise(teams));
-        // console.log(teamRandomise(teams));
-        // console.log(teamRandomise(teams));
-        // console.log(teamRandomise(teams));
-        // console.log(teamRandomise(teams));
-
-        // console.log(playerRandomise(players));
-        // console.log(playerRandomise(players));
-        // console.log(playerRandomise(players));
-        // console.log(playerRandomise(players));
-        // console.log(playerRandomise(players));
-        // console.log(playerRandomise(players));
-        // console.log(playerRandomise(players));
-        // console.log(playerRandomise(players));
-        // console.log(playerRandomise(players));
-        // console.log(playerRandomise(players));
+    tablePlayer.innerHTML = tPlayerNames.map(TableList => { 
+         return `<tr>
+                     <td class="plerName">${TableList.name}</td>
+                     <td class="team1" onclick="teamSelection(event)"></td>
+                     <td class="team2" onclick="teamSelection(event)"></td>
+                     <td class="team3" onclick="teamSelection(event)"></td>
+                     <td class="team4" onclick="teamSelection(event)"></td>
+                     <td class="selectedTeam"></td>
+                 </tr>`;
+                          
+     })
+     .join("");
+ }
+ popTable()
 
 
-
-        function teamSelection() {
-
-        }
-
-
+$("#finBtn").click(function(){
+    window.setTimeout(() => {
+        window.location.reload(true);
+    }, 200); 
+});
     </script>
     
 </body>
